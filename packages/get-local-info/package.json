@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "main": "dist/index.js",
   "types": "dist/types/index.d.ts",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc",
     "watch": "tsc --watch",
@@ -13,6 +15,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/node": "^24.9.1",
     "typescript": "^5.9.3"
   }
 }
