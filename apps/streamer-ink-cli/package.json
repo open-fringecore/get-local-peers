@@ -10,7 +10,8 @@
 	"scripts": {
 		"build": "tsc --project tsconfig.json && tsc-alias -p tsconfig.json",
 		"watch": "tsc && (concurrently \"tsc -w\" \"tsc-alias -w\")",
-		"dev": "tsc --watch",
+		"dev": "concurrently \"pnpm watch\" \"pnpm start:watch\"",
+		"start:watch": "node --loader ts-node/esm source/cli.tsx",
 		"start": "node dist/cli.js",
 		"test": "prettier --check . && xo && ava"
 	},

@@ -4,6 +4,9 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
+    "watch": "turbo run watch",
+    "start": "turbo run start",
+    "dev:ink": "turbo run dev --filter=streamer-ink-cli",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types"
