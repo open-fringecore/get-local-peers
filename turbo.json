@@ -3,8 +3,9 @@
     "ui": "tui",
     "tasks": {
         "watch": {
-            "dependsOn": ["^watch"],
-            "outputs": [".dist/**"]
+            "outputs": [".dist/**"],
+            "cache": false,
+            "persistent": true
         },
         "start": {
             "dependsOn": ["^start"],
