@@ -1,7 +1,14 @@
 {
 	"extends": "@sindresorhus/tsconfig",
 	"compilerOptions": {
-		"outDir": "dist"
+		"outDir": "dist",
+		"noUnusedLocals": false,
+		"noUnusedParameters": false,
+		"noImplicitReturns": false,
+		
+		"paths": {
+			"@/*": ["./source/*"]
+		}
 	},
 	"include": ["source"]
 }
