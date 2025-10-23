@@ -1,5 +1,5 @@
 {
-  "name": "VirtualAudioStreamer",
+  "name": "virtual-audio-streamer",
   "private": true,
   "scripts": {
     "build": "turbo run build",
