@@ -1,5 +1,6 @@
 import { randomUUID } from "crypto";
 import dgram, { Socket } from "dgram";
+import http from "http";
 import getLocalInfo, { LocalInfo } from "./lib/helper/getLocalInfo.js";
 import { getFreePort } from "./lib/helper/freePort.js";
 import broadcast from "./lib/helper/broadcast.js";
@@ -17,7 +18,8 @@ class LocalPeersStore {
     private discoveredPeer: Map<string, TDiscoveredPeer> = new Map();
     private listeners: Set<Listener> = new Set();
 
-    private server: Socket | null = null;
+    private udpServer: Socket | null = null;
+    private httpServer: any = null;
     private MY_ID: string;
     private MY_IP: string;
     private MY_NAME: string;
@@ -59,12 +61,12 @@ class LocalPeersStore {
     }
 
     startUDPServer(): void {
-        this.server = dgram.createSocket({
+        this.udpServer = dgram.createSocket({
             type: "udp4",
             reuseAddr: true,
         });
 
-        this.server.bind({
+        this.udpServer.bind({
             port: this.MY_UDP_PORT,
             address: "0.0.0.0",
             exclusive: false,
@@ -80,16 +82,16 @@ class LocalPeersStore {
         };
 
         // Handle server listening event
-        this.server.on("listening", () => {
-            if (!this.server) throw new Error("Server not initialized");
+        this.udpServer.on("listening", () => {
+            if (!this.udpServer) throw new Error("Server not initialized");
 
-            const address = this.server.address();
+            const address = this.udpServer.address();
             console.log(`Listening on ${address.address}:${address.port}`);
-            this.server.setBroadcast(true);
+            this.udpServer.setBroadcast(true);
 
             // Initial broadcast to announce presence
             broadcast(
-                this.server,
+                this.udpServer,
                 this.BROADCAST_ADDR,
                 this.MY_UDP_PORT,
                 JSON.stringify(msg)
@@ -97,9 +99,9 @@ class LocalPeersStore {
         });
 
         // Handle incoming messages
-        this.server.on("message", (receivedMsg, rinfo) => {
+        this.udpServer.on("message", (receivedMsg, rinfo) => {
             try {
-                if (!this.server) throw new Error("Server not initialized");
+                if (!this.udpServer) throw new Error("Server not initialized");
 
                 const data = JSON.parse(receivedMsg.toString());
 
@@ -131,7 +133,11 @@ class LocalPeersStore {
                             isBroadcast: false,
                         });
 
-                        this.server.send(response, rinfo.port, rinfo.address);
+                        this.udpServer.send(
+                            response,
+                            rinfo.port,
+                            rinfo.address
+                        );
                     }
                 }
             } catch (err) {
@@ -140,11 +146,13 @@ class LocalPeersStore {
         });
 
         // Handle errors
-        this.server.on("error", (err) => {
+        this.udpServer.on("error", (err) => {
             console.error(`Server error:\n${err.stack}`);
             this.stop();
         });
     }
+
+    startHttpServer(): void {}
 
     // Add discovered peer (returns false if already exists)
     addDiscoveredPeer(peer: TDiscoveredPeer): boolean {
@@ -164,8 +172,8 @@ class LocalPeersStore {
 
     // Stop the server
     stop(): void {
-        if (this.server) {
-            this.server.close();
+        if (this.udpServer) {
+            this.udpServer.close();
             console.log("UDP Server closed");
         }
     }
