@@ -65,7 +65,7 @@ class LocalPeersStore {
         });
 
         this.server.bind({
-            port: 4,
+            port: this.MY_UDP_PORT,
             address: "0.0.0.0",
             exclusive: false,
         });
