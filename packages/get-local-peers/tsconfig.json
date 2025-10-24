@@ -1,14 +1,16 @@
 {
   "compilerOptions": {
-    "target": "ES6",
-    "module": "NodeNext",
+    "target": "ES2022",                     // Supports top-level await + modern syntax
+    "module": "NodeNext",                   // Correct for ESM in Node
+    "moduleResolution": "NodeNext",         // Must match "module"
+    "outDir": "dist",
     "declaration": true,
     "declarationDir": "dist/types",
-    "outDir": "dist",
     "strict": true,
     "esModuleInterop": true,
-    "moduleResolution": "nodenext",
-    "skipLibCheck": true
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true
   },
   "include": ["src"]
 }
