@@ -110,7 +110,6 @@ class LocalPeersStore {
                     return;
                 }
 
-                // Log received message
                 if (data.isBroadcast) {
                     console.log(`<-- Broadcast From: ${data.name}: ${data.id}`);
                 } else {
@@ -145,7 +144,6 @@ class LocalPeersStore {
             }
         });
 
-        // Handle errors
         this.udpServer.on("error", (err) => {
             console.error(`Server error:\n${err.stack}`);
             this.stop();
@@ -165,12 +163,10 @@ class LocalPeersStore {
         return true;
     }
 
-    // Start generating items
     start(): void {
         this.startUDPServer();
     }
 
-    // Stop the server
     stop(): void {
         if (this.udpServer) {
             this.udpServer.close();
@@ -178,17 +174,15 @@ class LocalPeersStore {
         }
     }
 
-    // Clear all items
     clear(): void {
         this.discoveredPeer = new Map();
         this.notify();
     }
 }
 
-// Export singleton instance
-
 const id = randomUUID();
 const localInfo = getLocalInfo();
 const freePort = (await getFreePort()) ?? 8779;
+// Export singleton instance
 export const localPeersStore = new LocalPeersStore(id, localInfo, freePort);
 export type { TDiscoveredPeer };
