@@ -1,38 +1,34 @@
 import React, {useEffect, useState} from 'react';
 import {Text} from 'ink';
 import Example from '@/Example.js';
-import getLocalInfo from 'get-local-info';
-import {itemStore, type Item} from 'get-local-peers';
+import {localPeersStore, type TDiscoveredPeer} from 'get-local-peers';
 
 type Props = {
 	name: string | undefined;
 };
 
 export default function App({name = 'Stranger'}: Props) {
-	const [items, setItems] = useState<Item[]>([]);
+	const [items, setItems] = useState<TDiscoveredPeer[]>([]);
 
 	useEffect(() => {
 		// Get initial items
-		setItems(itemStore.getItems());
+		setItems(localPeersStore.getDiscoveredPeer());
 
 		// Subscribe to changes
-		const unsubscribe = itemStore.subscribe((updatedItems: Item[]) => {
-			setItems(updatedItems);
-		});
+		const unsubscribe = localPeersStore.subscribe(
+			(updatedItems: TDiscoveredPeer[]) => {
+				setItems(updatedItems);
+			},
+		);
 
 		// Start generating items
-		itemStore.start();
+		localPeersStore.start();
 
 		// Cleanup on unmount
 		return () => {
 			unsubscribe();
-			itemStore.stop();
+			localPeersStore.stop();
 		};
-	}, []);
-
-	useEffect(() => {
-		const info = getLocalInfo();
-		console.log('Local Info:', info);
 	}, []);
 
 	return (
@@ -42,7 +38,7 @@ export default function App({name = 'Stranger'}: Props) {
 			</Text>
 			{items.map(item => (
 				<Text key={item.id}>
-					{item.value} - {new Date(item.timestamp).toLocaleTimeString()}
+					{item.name} - {item.ip}:{item.httpPort}
 				</Text>
 			))}
 			{/* <Example /> */}

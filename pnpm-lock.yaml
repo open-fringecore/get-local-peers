@@ -20,9 +20,6 @@ importers:
 
   apps/streamer-ink-cli:
     dependencies:
-      get-local-info:
-        specifier: workspace:^
-        version: link:../../packages/get-local-info
       get-local-peers:
         specifier: workspace:^
         version: link:../../packages/get-local-peers

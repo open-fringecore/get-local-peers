@@ -152,14 +152,13 @@ class LocalPeersStore {
             return false;
         }
         this.discoveredPeer.set(peer.id, peer);
+        this.notify();
         console.log(`Added peer: ${peer.name} (${peer.id})`);
         return true;
     }
 
     // Start generating items
     start(): void {
-        // this.items.push(newItem);
-        // this.notify();
         this.startUDPServer();
     }
 
@@ -183,5 +182,5 @@ class LocalPeersStore {
 const id = randomUUID();
 const localInfo = getLocalInfo();
 const freePort = (await getFreePort()) ?? 8779;
-export const itemStore = new LocalPeersStore(id, localInfo, freePort);
+export const localPeersStore = new LocalPeersStore(id, localInfo, freePort);
 export type { TDiscoveredPeer };

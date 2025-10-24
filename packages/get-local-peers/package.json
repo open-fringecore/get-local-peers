@@ -2,8 +2,8 @@
   "name": "get-local-peers",
   "version": "0.1.0",
   "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/types/index.d.ts",
+  "main": "dist/index.mjs",
+  "types": "dist/types/index.d.mts",
   "files": [
     "dist"
   ],
