@@ -1,6 +1,6 @@
 import { Socket } from "dgram";
 
-const sendBroadcast = (
+const broadcast = (
     server: Socket,
     ADDRESS: string,
     PORT: number,
@@ -22,4 +22,4 @@ const sendBroadcast = (
     );
 };
 
-export default sendBroadcast;
+export default broadcast;

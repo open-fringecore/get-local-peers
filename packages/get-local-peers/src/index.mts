@@ -1,6 +1,8 @@
 import { randomUUID } from "crypto";
+import dgram, { Socket } from "dgram";
 import getLocalInfo, { LocalInfo } from "./lib/helper/getLocalInfo.js";
 import { getFreePort } from "./lib/helper/freePort.js";
+import broadcast from "./lib/helper/broadcast.js";
 
 type TDiscoveredPeer = {
     id: string;
@@ -12,13 +14,14 @@ type TDiscoveredPeer = {
 type Listener = (items: TDiscoveredPeer[]) => void;
 
 class LocalPeersStore {
-    private discoveredPeer: TDiscoveredPeer[] = [];
+    private discoveredPeer: Map<string, TDiscoveredPeer> = new Map();
     private listeners: Set<Listener> = new Set();
 
+    private server: Socket | null = null;
     private MY_ID: string;
     private MY_IP: string;
     private MY_NAME: string;
-    private MY_BROADCAST_ADDR: string;
+    private BROADCAST_ADDR: string;
     private MY_UDP_PORT: number = 8008; // BOOB
     private MY_HTTP_PORT: number;
 
@@ -29,7 +32,7 @@ class LocalPeersStore {
         this.MY_ID = id;
         this.MY_IP = localInfo.ip;
         this.MY_NAME = localInfo.hostname;
-        this.MY_BROADCAST_ADDR = localInfo.broadcastIp;
+        this.BROADCAST_ADDR = localInfo.broadcastIp;
         this.MY_HTTP_PORT = freePort;
     }
 
@@ -46,27 +49,131 @@ class LocalPeersStore {
     // Notify all listeners
     private notify(): void {
         this.listeners.forEach((listener) =>
-            listener([...this.discoveredPeer])
+            listener([...this.discoveredPeer.values()])
         );
     }
 
     // Get current Discovered Peers
     getDiscoveredPeer(): TDiscoveredPeer[] {
-        return [...this.discoveredPeer];
+        return [...this.discoveredPeer.values()];
+    }
+
+    startUDPServer(): void {
+        this.server = dgram.createSocket({
+            type: "udp4",
+            reuseAddr: true,
+        });
+
+        this.server.bind({
+            port: 4,
+            address: "0.0.0.0",
+            exclusive: false,
+        });
+
+        const msg = {
+            method: "SELF",
+            name: this.MY_NAME,
+            id: this.MY_ID,
+            ip: this.MY_IP,
+            httpPort: this.MY_HTTP_PORT,
+            isBroadcast: true,
+        };
+
+        // Handle server listening event
+        this.server.on("listening", () => {
+            if (!this.server) throw new Error("Server not initialized");
+
+            const address = this.server.address();
+            console.log(`Listening on ${address.address}:${address.port}`);
+            this.server.setBroadcast(true);
+
+            // Initial broadcast to announce presence
+            broadcast(
+                this.server,
+                this.BROADCAST_ADDR,
+                this.MY_UDP_PORT,
+                JSON.stringify(msg)
+            );
+        });
+
+        // Handle incoming messages
+        this.server.on("message", (receivedMsg, rinfo) => {
+            try {
+                if (!this.server) throw new Error("Server not initialized");
+
+                const data = JSON.parse(receivedMsg.toString());
+
+                // Ignore messages from self
+                if (data.id === this.MY_ID) {
+                    return;
+                }
+
+                // Log received message
+                if (data.isBroadcast) {
+                    console.log(`<-- Broadcast From: ${data.name}: ${data.id}`);
+                } else {
+                    console.log(`<-- Received From: ${data.name}: ${data.id}`);
+                }
+
+                // Handle SELF method (peer discovery)
+                if (data.method === "SELF") {
+                    const isNewPeer = this.addDiscoveredPeer({
+                        id: data.id,
+                        ip: rinfo.address,
+                        name: data.name,
+                        httpPort: data.httpPort,
+                    });
+
+                    // Respond if it's a new peer or if it was a broadcast
+                    if (isNewPeer || data.isBroadcast) {
+                        const response = JSON.stringify({
+                            ...msg,
+                            isBroadcast: false,
+                        });
+
+                        this.server.send(response, rinfo.port, rinfo.address);
+                    }
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        });
+
+        // Handle errors
+        this.server.on("error", (err) => {
+            console.error(`Server error:\n${err.stack}`);
+            this.stop();
+        });
+    }
+
+    // Add discovered peer (returns false if already exists)
+    addDiscoveredPeer(peer: TDiscoveredPeer): boolean {
+        if (this.discoveredPeer.has(peer.id)) {
+            return false;
+        }
+        this.discoveredPeer.set(peer.id, peer);
+        console.log(`Added peer: ${peer.name} (${peer.id})`);
+        return true;
     }
 
     // Start generating items
     start(): void {
         // this.items.push(newItem);
         // this.notify();
+        this.startUDPServer();
     }
 
-    // Stop generating items
-    stop(): void {}
+    // Stop the server
+    stop(): void {
+        if (this.server) {
+            this.server.close();
+            console.log("UDP Server closed");
+        }
+    }
 
     // Clear all items
     clear(): void {
-        this.discoveredPeer = [];
+        this.discoveredPeer = new Map();
         this.notify();
     }
 }
