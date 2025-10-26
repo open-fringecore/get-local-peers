@@ -4,6 +4,7 @@ import http from "http";
 import getLocalInfo, { LocalInfo } from "./lib/helper/getLocalInfo.js";
 import { getFreePort } from "./lib/helper/freePort.js";
 import broadcast from "./lib/helper/broadcast.js";
+import { HttpServer } from "./services/httpRouteHandler.mjs";
 
 type TDiscoveredPeer = {
     id: string;
@@ -19,7 +20,7 @@ class LocalPeersStore {
     private listeners: Set<Listener> = new Set();
 
     private udpServer: Socket | null = null;
-    private httpServer: any = null;
+    private httpServer?: HttpServer;
     private MY_ID: string;
     private MY_IP: string;
     private MY_NAME: string;
@@ -150,7 +151,27 @@ class LocalPeersStore {
         });
     }
 
-    startHttpServer(): void {}
+    startHttpServer(): void {
+        this.httpServer = new HttpServer();
+
+        this.httpServer.get("/", (req, res) => {
+            res.json({
+                msg: "Hoe!",
+            });
+        });
+
+        this.httpServer.get("/get-active-peer", (req, res) => {
+            setTimeout(() => {
+                res.json({ active: true });
+            }, 10000);
+        });
+
+        this.httpServer.listen(this.MY_HTTP_PORT, this.MY_IP, () => {
+            console.log(
+                `Server running at http://${this.MY_IP}:${this.MY_HTTP_PORT}`
+            );
+        });
+    }
 
     // Add discovered peer (returns false if already exists)
     addDiscoveredPeer(peer: TDiscoveredPeer): boolean {
@@ -171,6 +192,9 @@ class LocalPeersStore {
         if (this.udpServer) {
             this.udpServer.close();
             console.log("UDP Server closed");
+        }
+        if (this.httpServer) {
+            this.httpServer.close();
         }
     }
 

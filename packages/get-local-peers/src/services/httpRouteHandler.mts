@@ -1,11 +1,23 @@
 import http, { IncomingMessage, ServerResponse } from "http";
 
-type Handler = (req: IncomingMessage, res: ServerResponse) => void;
+type Handler = (
+    req: IncomingMessage & { body?: any },
+    res: ServerResponse & {
+        json: (data: any, code?: number) => void;
+        send: (data: any, code?: number) => void;
+        status: (code: number) => ResponseHelper;
+    }
+) => void;
+
+type ResponseHelper = {
+    json: (data: any) => void;
+    send: (data: any) => void;
+};
 
 export class HttpServer {
     private getRoutes: Map<string, Handler> = new Map();
     private postRoutes: Map<string, Handler> = new Map();
-    private server?: http.Server; // store reference to the server
+    private server?: http.Server;
 
     get(path: string, handler: Handler) {
         this.getRoutes.set(path, handler);
@@ -43,6 +55,46 @@ export class HttpServer {
             if (method === "GET") handler = this.getRoutes.get(url);
             if (method === "POST") handler = this.postRoutes.get(url);
 
+            // extend res with helper methods
+            (res as any).json = (data: any, code: number = 200) => {
+                res.writeHead(code, { "Content-Type": "application/json" });
+                res.end(JSON.stringify(data));
+            };
+
+            (res as any).send = (data: any, code: number = 200) => {
+                if (typeof data === "object") {
+                    res.writeHead(code, { "Content-Type": "application/json" });
+                    res.end(JSON.stringify(data));
+                } else {
+                    res.writeHead(code, { "Content-Type": "text/plain" });
+                    res.end(data);
+                }
+            };
+
+            (res as any).status = (code: number): ResponseHelper => {
+                return {
+                    json: (data: any) => {
+                        res.writeHead(code, {
+                            "Content-Type": "application/json",
+                        });
+                        res.end(JSON.stringify(data));
+                    },
+                    send: (data: any) => {
+                        if (typeof data === "object") {
+                            res.writeHead(code, {
+                                "Content-Type": "application/json",
+                            });
+                            res.end(JSON.stringify(data));
+                        } else {
+                            res.writeHead(code, {
+                                "Content-Type": "text/plain",
+                            });
+                            res.end(data);
+                        }
+                    },
+                };
+            };
+
             if (!handler) {
                 res.writeHead(404, { "Content-Type": "application/json" });
                 res.end(JSON.stringify({ error: "Not Found" }));
@@ -53,7 +105,7 @@ export class HttpServer {
                 (req as any).body = await this.parseBody(req);
             }
 
-            handler(req, res);
+            handler(req as any, res as any);
         });
 
         this.server.listen(port, host, callback);
