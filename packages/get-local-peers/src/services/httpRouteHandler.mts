@@ -2,7 +2,7 @@ import http, { IncomingMessage, ServerResponse } from "http";
 
 type Handler = (req: IncomingMessage, res: ServerResponse) => void;
 
-export class App {
+export class HttpServer {
     private getRoutes: Map<string, Handler> = new Map();
     private postRoutes: Map<string, Handler> = new Map();
 
@@ -31,7 +31,7 @@ export class App {
         });
     }
 
-    listen(port: number, callback?: () => void) {
+    listen(port: number, host: string = "0.0.0.0", callback?: () => void) {
         const server = http.createServer(async (req, res) => {
             if (!req.url || !req.method) {
                 throw new Error("Invalid request");
@@ -59,6 +59,6 @@ export class App {
             handler(req, res);
         });
 
-        server.listen(port, callback);
+        server.listen(port, host, callback);
     }
 }
