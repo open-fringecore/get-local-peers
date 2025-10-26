@@ -12,11 +12,18 @@ type TDiscoveredPeer = {
     ip: string;
     httpPort: number;
 };
+type TActivePeers = {
+    id: string;
+    name: string;
+    ip: string;
+    httpPort: number;
+};
 
 type Listener = (items: TDiscoveredPeer[]) => void;
 
 class LocalPeersStore {
     private discoveredPeer: Map<string, TDiscoveredPeer> = new Map();
+    private activePeers: Map<string, TActivePeers> = new Map();
     private listeners: Set<Listener> = new Set();
 
     private udpServer: Socket | null = null;
@@ -186,6 +193,7 @@ class LocalPeersStore {
 
     start(): void {
         this.startUDPServer();
+        this.startHttpServer();
     }
 
     stop(): void {

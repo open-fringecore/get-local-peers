@@ -8,16 +8,16 @@ type Props = {
 };
 
 export default function App({name = 'Stranger'}: Props) {
-	const [items, setItems] = useState<TDiscoveredPeer[]>([]);
+	const [discoveredPeers, setDiscoveredPeers] = useState<TDiscoveredPeer[]>([]);
 
 	useEffect(() => {
 		// Get initial items
-		setItems(localPeersStore.getDiscoveredPeer());
+		setDiscoveredPeers(localPeersStore.getDiscoveredPeer());
 
 		// Subscribe to changes
 		const unsubscribe = localPeersStore.subscribe(
 			(updatedItems: TDiscoveredPeer[]) => {
-				setItems(updatedItems);
+				setDiscoveredPeers(updatedItems);
 			},
 		);
 
@@ -36,7 +36,10 @@ export default function App({name = 'Stranger'}: Props) {
 			<Text>
 				Yooo... <Text color="green">{name}</Text>
 			</Text>
-			{items.map(item => (
+			<Text backgroundColor="green" color="white">
+				Discovered Peers
+			</Text>
+			{discoveredPeers.map(item => (
 				<Text key={item.id}>
 					{item.name} - {item.ip}:{item.httpPort}
 				</Text>
