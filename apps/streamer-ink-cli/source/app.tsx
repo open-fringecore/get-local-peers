@@ -1,33 +1,33 @@
 import React, {useEffect, useState} from 'react';
 import {Text} from 'ink';
 import Example from '@/Example.js';
-import {localPeersStore, type TDiscoveredPeer} from 'get-local-peers';
+import {activePeersStore, type TActivePeer} from 'get-local-peers';
 
 type Props = {
 	name: string | undefined;
 };
 
 export default function App({name = 'Stranger'}: Props) {
-	const [discoveredPeers, setDiscoveredPeers] = useState<TDiscoveredPeer[]>([]);
+	const [activePeers, setActivePeers] = useState<TActivePeer[]>([]);
 
 	useEffect(() => {
 		// Get initial items
-		setDiscoveredPeers(localPeersStore.getDiscoveredPeer());
+		setActivePeers(activePeersStore.getActivePeers());
 
 		// Subscribe to changes
-		const unsubscribe = localPeersStore.subscribe(
-			(updatedItems: TDiscoveredPeer[]) => {
-				setDiscoveredPeers(updatedItems);
+		const unsubscribe = activePeersStore.subscribe(
+			(updatedItems: TActivePeer[]) => {
+				setActivePeers(updatedItems);
 			},
 		);
 
 		// Start generating items
-		localPeersStore.start();
+		activePeersStore.start();
 
 		// Cleanup on unmount
 		return () => {
 			unsubscribe();
-			localPeersStore.stop();
+			activePeersStore.stop();
 		};
 	}, []);
 
@@ -39,9 +39,9 @@ export default function App({name = 'Stranger'}: Props) {
 			<Text backgroundColor="green" color="white">
 				Discovered Peers
 			</Text>
-			{discoveredPeers.map(item => (
+			{activePeers.map(item => (
 				<Text key={item.id}>
-					{item.name} - {item.ip}:{item.httpPort}
+					{item.id} - {item.ip}:{item.httpPort}
 				</Text>
 			))}
 			{/* <Example /> */}
