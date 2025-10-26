@@ -5,6 +5,7 @@ type Handler = (req: IncomingMessage, res: ServerResponse) => void;
 export class HttpServer {
     private getRoutes: Map<string, Handler> = new Map();
     private postRoutes: Map<string, Handler> = new Map();
+    private server?: http.Server; // store reference to the server
 
     get(path: string, handler: Handler) {
         this.getRoutes.set(path, handler);
@@ -17,9 +18,7 @@ export class HttpServer {
     private parseBody(req: IncomingMessage): Promise<any> {
         return new Promise((resolve, reject) => {
             let body = "";
-            req.on("data", (chunk) => {
-                body += chunk.toString();
-            });
+            req.on("data", (chunk) => (body += chunk.toString()));
             req.on("end", () => {
                 try {
                     resolve(JSON.parse(body || "{}"));
@@ -27,18 +26,18 @@ export class HttpServer {
                     resolve({});
                 }
             });
-            req.on("error", (err) => reject(err));
+            req.on("error", reject);
         });
     }
 
     listen(port: number, host: string = "0.0.0.0", callback?: () => void) {
-        const server = http.createServer(async (req, res) => {
+        this.server = http.createServer(async (req, res) => {
             if (!req.url || !req.method) {
                 throw new Error("Invalid request");
             }
 
             const method = req.method.toUpperCase();
-            const url = req.url.split("?")[0]; // ignore query params
+            const url = req.url.split("?")[0];
 
             let handler: Handler | undefined;
             if (method === "GET") handler = this.getRoutes.get(url);
@@ -50,15 +49,26 @@ export class HttpServer {
                 return;
             }
 
-            // Attach parsed JSON body for POST
             if (method === "POST") {
                 (req as any).body = await this.parseBody(req);
             }
 
-            // Call the route handler
             handler(req, res);
         });
 
-        server.listen(port, host, callback);
+        this.server.listen(port, host, callback);
+    }
+
+    async close(): Promise<void> {
+        return new Promise((resolve, reject) => {
+            if (!this.server) {
+                reject(new Error("Server is not running"));
+                return;
+            }
+            this.server.close((err) => {
+                if (err) reject(err);
+                else resolve();
+            });
+        });
     }
 }
