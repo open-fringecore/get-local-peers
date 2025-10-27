@@ -41,5 +41,5 @@ pnpm --filter demo-ink-project start
 ```
 or start all projects
 ```sh
-pnpm demo:ink
+pnpm start
 ```
