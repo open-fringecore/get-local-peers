@@ -15,7 +15,7 @@ export default function App({name = 'Stranger'}: Props) {
 				Yooo... <Text color="green">{name}</Text>
 			</Text>
 			<Text backgroundColor="green" color="white">
-				Discovered Peers
+				Active Peers
 			</Text>
 			{activePeers.map(peer => (
 				<Text key={peer.id}>
