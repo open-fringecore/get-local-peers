@@ -19,6 +19,10 @@ importers:
         version: 5.9.2
 
   apps/demo:
+    dependencies:
+      get-local-peers:
+        specifier: workspace:^
+        version: link:../../packages/get-local-peers
     devDependencies:
       '@types/node':
         specifier: ^24.9.1
