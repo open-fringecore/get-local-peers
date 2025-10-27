@@ -7,13 +7,13 @@ import App from './app.js';
 const cli = meow(
 	`
 	Usage
-	  $ demo-ink-project
+	  $ demo-ink-app
 
 	Options
 		--name  Your name
 
 	Examples
-	  $ demo-ink-project --name=Jane
+	  $ demo-ink-app --name=Jane
 	  Hello, Jane
 `,
 	{

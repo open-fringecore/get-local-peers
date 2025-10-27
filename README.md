@@ -37,7 +37,7 @@ pnpm watch
 Start the example application:
 
 ```sh
-pnpm --filter demo-ink-project start
+pnpm --filter demo-ink-app start
 ```
 or start all projects
 ```sh
