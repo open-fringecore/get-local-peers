@@ -39,6 +39,7 @@ import { activePeersStore, type TActivePeer } from "get-local-peers";
 
 import {useEffect, useState} from 'react';
 import {activePeersStore, type TActivePeer} from 'get-local-peers';
+
 export function useLocalPeers() {
 	const [activePeers, setActivePeers] = useState<TActivePeer[]>([]);
 

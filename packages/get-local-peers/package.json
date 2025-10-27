@@ -1,9 +1,9 @@
 {
   "name": "get-local-peers",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "type": "module",
   "main": "dist/index.mjs",
-  "module": "dist/index.mjs", 
+  "module": "dist/index.mjs",
   "types": "dist/types/index.d.mts",
   "files": [
     "dist"
@@ -14,7 +14,7 @@
     "start": "node dist/index.mjs",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-   "publishConfig": {
+  "publishConfig": {
     "access": "public"
   },
   "keywords": [],
