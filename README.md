@@ -34,8 +34,13 @@ Watch the project for changes:
 pnpm watch
 ```
 
-Start the example application:
+### Start the example application:
 
+Start Vanilla JS demo app
+```sh
+pnpm --filter demo start
+```
+Start React Ink demo app
 ```sh
 pnpm --filter demo-ink-app start
 ```
