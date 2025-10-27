@@ -1,5 +1,5 @@
 {
-  "name": "virtual-audio-streamer",
+  "name": "get-local-peers-mono",
   "private": true,
   "scripts": {
     "build": "turbo run build",
