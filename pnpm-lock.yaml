@@ -79,15 +79,6 @@ importers:
         specifier: ^0.53.1
         version: 0.53.1(webpack@5.102.1)
 
-  packages/get-local-info:
-    devDependencies:
-      '@types/node':
-        specifier: ^24.9.1
-        version: 24.9.1
-      typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
-
   packages/get-local-peers:
     devDependencies:
       '@types/node':
