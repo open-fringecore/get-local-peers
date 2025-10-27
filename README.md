@@ -48,3 +48,17 @@ or start all projects
 ```sh
 pnpm start
 ```
+
+
+### To Publish the package:
+Build the project:
+
+```sh
+pnpm build --filter get-local-peers
+```
+Publish to npm:
+
+```sh
+cd packages/get-local-peers
+pnpm publish --access public
+```
