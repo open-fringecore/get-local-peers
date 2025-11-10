@@ -2,6 +2,11 @@
 
 An open source javascript library to get local network peers.
 
+# Install
+```bash
+npm install get-local-peers
+```
+
 # Usage
 
 ### With Node.js
