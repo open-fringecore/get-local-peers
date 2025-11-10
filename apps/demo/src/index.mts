@@ -3,7 +3,7 @@ import { activePeersStore, type TActivePeer } from "get-local-peers";
 function main() {
     // Print initial peers
     const initialPeers = activePeersStore.getActivePeers();
-    console.log("Initial peers:", initialPeers);
+    // console.log("Initial peers:", initialPeers);
 
     // Subscribe to updates
     const unsubscribe = activePeersStore.subscribe(
@@ -11,7 +11,9 @@ function main() {
             console.clear();
             console.log("🟢 Active peers:", updatedPeers.length);
             updatedPeers.forEach((peer) => {
-                console.log(`→ ${peer.id} | ${peer.ip}:${peer.httpPort}`);
+                console.log(
+                    `→ ${peer.name}-${peer.id.split("-").pop()} | ${peer.ip}:${peer.httpPort}`
+                );
             });
         }
     );
