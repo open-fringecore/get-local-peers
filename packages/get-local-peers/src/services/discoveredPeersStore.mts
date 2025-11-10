@@ -82,9 +82,9 @@ export class DiscoveredPeersStore {
         this.udpServer.on("listening", () => {
             if (!this.udpServer) throw new Error("Server not initialized");
 
-            const address = this.udpServer.address();
-            console.log(`Listening on ${address.address}:${address.port}`);
             this.udpServer.setBroadcast(true);
+            const address = this.udpServer.address();
+            // console.log(`Listening on ${address.address}:${address.port}`);
 
             // Initial broadcast to announce presence
             broadcast(
@@ -154,7 +154,6 @@ export class DiscoveredPeersStore {
         }
         this.discoveredPeer.set(peer.id, peer);
         this.notify();
-        console.log(`Added peer: ${peer.name} (${peer.id})`);
         return true;
     }
 
@@ -165,7 +164,6 @@ export class DiscoveredPeersStore {
     stop(): void {
         if (this.udpServer) {
             this.udpServer.close();
-            console.log("UDP Server closed");
         }
     }
 

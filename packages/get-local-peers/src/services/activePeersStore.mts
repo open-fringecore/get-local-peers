@@ -127,7 +127,7 @@ export class ActivePeersStore {
         const { ip, httpPort } = this.discoveredPeersStore.getPortAndIP();
 
         this.httpServer.listen(httpPort, ip, () => {
-            console.log(`Server running at http://${ip}:${httpPort}`);
+            // console.log(`Server running at http://${ip}:${httpPort}`);
         });
     }
 
